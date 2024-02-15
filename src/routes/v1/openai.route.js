@@ -5,7 +5,7 @@ const router = express.Router();
 // router.route("/").post(controller.generateResponse);
 router.route("/").post(controller.generateResponseForCasper);
 
-router.route("/image").post(controller.upload.single('file'), controller.generateResponseForCasper);
+router.route("/image").post(controller.upload.single('file'), controller.decodeImageForCasper);
 
 
 export default router;

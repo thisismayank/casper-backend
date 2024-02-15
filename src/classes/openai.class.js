@@ -4,7 +4,7 @@ import OpenAI from "openai"
 import axios from 'axios';
 import response from "../lib/response.js";
 import logger from "../lib/logger";
-
+const tesseract = require("tesseract.js")
 
 // Replace 'YOUR_OPENAI_API_KEY' with your actual OpenAI API key
 const apiKey = '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';
@@ -88,6 +88,34 @@ export default class OpenAIClass extends BaseClass {
             throw error;
         }
     }
+    async decodeImageFromCasper(path, name, originalName) {
+        try {
+            logger.info(
+                `INFO: OpenAIClass-decodeImageFromCasper - Path: ${path} - Name: ${name} - Original Name: ${originalName}`
+            );
+
+
+            const conversation = await tesseract
+                .recognize(path, 'eng');
+
+
+
+
+
+            logger.debug(`RESULT: OpenAIClass-decodeImageFromCasper - DATA: ${conversation.data.text}`);
+
+            return {
+                ...response.CARBON.CNAUGHT.PLACE_ORDER.SUCCESS,
+                results: {
+
+                }
+            }
+        }
+        catch (error) {
+            console.error('Error generating text:', error.response ? error.response.data : error.message);
+            throw error;
+        }
+    }
+
 
 }
-

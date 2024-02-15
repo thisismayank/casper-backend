@@ -29,6 +29,13 @@ export const decodeImageForCasper = async (req, res) => {
     // Assuming you also want to handle additional form fields:
     console.log('Name:', req.body.name);
     console.log('Date:', req.body.date);
+    console.log(storage._handleFile.name);
+    console.log("NAMMEEEE", JSON.stringify(req.file));
+    console.log("NAMMEEEE", req.file.filename);
+
+
+    const openAiObj = new OpenAIClass();
+    const responseObj = await openAiObj.decodeImageFromCasper(req.file.path, req.file.filename, req.file.originalname)
 
     res.json({
         message: 'File uploaded successfully',
