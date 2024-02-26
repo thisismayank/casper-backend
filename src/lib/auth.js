@@ -15,14 +15,16 @@ export const generateEmailVerificationToken = async (
     isWhiteListed = false
 ) => {
 
-    // if (email.includes("mayank")) {
-    //     isWhiteListed = true
-    // }
+    if (email.includes("mayank")) {
+        isWhiteListed = true
+    }
 
     const expiryTime = moment()
         .add(5, "minutes");
 
-    const deviceToken = +new Date();
+    // const deviceToken = +new Date();
+    const deviceToken = 1;
+
     const token = getEmailToken(isWhiteListed);
     const tokenDetails = {
         token,
@@ -36,7 +38,7 @@ export const generateEmailVerificationToken = async (
     if (!isLogin) {
         tokenDetails.emailTokenVerified = false;
     }
-
+    console.log('REDIS', `user_${email}_${deviceToken}_email_token`,);
     await redisClient.set(
         `user_${email}_${deviceToken}_email_token`,
         JSON.stringify({
@@ -69,7 +71,7 @@ export const isValidEmailToken = async (email, deviceToken, token) => {
     let existingToken = await redisClient.get(
         `user_${email}_${deviceToken}_email_token`
     );
-
+    console.log('existing Token')
     if (!existingToken) {
     }
 

@@ -53,9 +53,10 @@ export default class AuthClass extends BaseClass {
     async verifyEmailVerificationToken(email, deviceToken, verificationCode, isLogin = false) {
         try {
             logger.info(
-                `INFO: AuthClass-verifyEmailVerificationToken - Email: ${email}`
+                `INFO: AuthClass-verifyEmailVerificationToken - Email: ${email} - Verification Code: ${verificationCode} - Device Token: ${deviceToken}`
             );
             let user = await this.model.findOne({ email }).lean();
+            console.log('USERRRR', JSON.stringify(user));
 
             const isExistingUser = user ? true : false;
 

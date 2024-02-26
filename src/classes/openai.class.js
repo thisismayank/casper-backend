@@ -7,8 +7,13 @@ import logger from "../lib/logger";
 const tesseract = require("tesseract.js")
 
 // Replace 'YOUR_OPENAI_API_KEY' with your actual OpenAI API key
-const apiKey = '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';
+const apiKey = 'sk-BraUqGoxPhZfSNKlxPcmT3BlbkFJAUWQQosSsECU8SVus8k';
+const OPENAI_API_KEY = "sk-8m6F0JwoHnBDyNtcbStuT3BlbkFJfyitMEoZWTxEJvXiPsT"
+const ASSISTANT_ID = "asst_0Yrv9S1ZCQ7QIqjhiZYWDPu"
 
+
+const ASSISTANT_TITLE = "Assistants API UI"
+const ENABLED_FILE_UPLOAD_MESSAGE = "FILE Upload" //Leave empty to disable
 export default class OpenAIClass extends BaseClass {
     async generateResponse(prompt) {
         try {
@@ -77,7 +82,7 @@ export default class OpenAIClass extends BaseClass {
                 results: {
                     author: "1",
                     createdAt: new Date().getTime(),
-                    id: '0',
+                    id: new Date().getTime(),
                     // text: "Hello"
                     text: isTest ? "Hello" : completion.choices[0].message.content
                 }
@@ -98,11 +103,80 @@ export default class OpenAIClass extends BaseClass {
             const conversation = await tesseract
                 .recognize(path, 'eng');
 
+            console.log('CONVERSAtion', conversation.data.text);
+            const openai = new OpenAI();
+            const assistant = await openai.beta.assistants.create({
+                name: "Expert in dating conversations",
+                instructions: `Don't use emoji. don't explain, just send the chat. By using a text in the conversation, FlirtAI is now refined to generate short, emoji-free replies that do not suggest meetings or coffee dates by looking at the screenshots provided or the text given. It will continue the conversation with succinct replies that mirror the user's input in length and style, maintaining a natural back-and-forth flow. The assistant will replicate the user's word count closely to preserve the conversation's rhythm without shifting towards plans for a real-world interaction, ensuring a seamless and engaging textual exchange.
+                    Don't use emoji.
+                    can you make the replies more flirtatious and quirky and using slangs and also using meme knowledge`,
+                tools: [{ type: "retrieval" }],
+                model: "gpt-3.5-turbo"
+            });
+            const myAssistants = await openai.beta.assistants.list({
+                order: "desc",
+                limit: "20",
+            });
+            // console.log('assistanrt', myAssistants);
+            const thread = await openai.beta.threads.create();
+            // console.log('thread', thread)
+            console.log('thread', thread.id)
 
+            const message = await openai.beta.threads.messages.create(
+                thread.id,
+                {
+                    role: "user",
+                    content: conversation.data.text
+                }
+            );
 
+            let run = await openai.beta.threads.runs.create(
+                thread.id,
+                {
+                    assistant_id: "asst_kkWJFrQ5zj5LHNxBZxoWib7",
+                    instructions: "Please address the user as Friend. The user has a playful personality."
+                }
+            );
+            let runStatus = null;
+            function delay(time) {
+                return new Promise(resolve => setTimeout(resolve, time));
+            }
 
+            async function checkRunStatus(threadId, runId) {
+                let run = await openai.beta.threads.runs.retrieve(threadId, runId);
 
-            logger.debug(`RESULT: OpenAIClass-decodeImageFromCasper - DATA: ${conversation.data.text}`);
+                // Keep polling the run status every second until it is 'completed'
+                while (run.status !== "completed") {
+                    await delay(1000); // Wait for 1 second
+                    run = await openai.beta.threads.runs.retrieve(threadId, runId);
+                }
+
+                console.log('Run completed');
+                return run;
+            }
+            const completedRun = await checkRunStatus("run_Xfs3WiK7Ktb1yHYgAckvTwI.", run.id);
+            (async () => {
+                let run = await openai.beta.threads.runs.create(
+                    thread.id,
+                    {
+                        assistant_id: "asst_kkWJFrQ5z5LHNxBZxoWi5b7",
+                        instructions: "Please address the user as Friend. The user has a playful personality."
+                    }
+                );
+
+                // Wait for the run to complete
+                const completedRun = await checkRunStatus("run_Xfs3FWiK7Ktb1yHYgckvTwI.", run.id);
+
+                console.log('Completed run:', completedRun);
+
+                // Now that the run is completed, you can list the messages
+                const messages = await openai.beta.threads.messages.list(thread.id);
+                console.log('Messages:', messages);
+                logger.debug(`RESULT: OpenAIClass-decodeImageFromCasper - DATA: ${messages.data.text}`);
+            })();
+
+            // console.log("RESPONSE HERE IS:", messages);
+
 
             return {
                 ...response.CARBON.CNAUGHT.PLACE_ORDER.SUCCESS,

@@ -2,6 +2,7 @@ import response from "../lib/response.js";
 import AuthClass from "../classes/auth.class.js";
 import OpenAI from "../classes/openai.class.js";
 import OpenAIClass from "../classes/openai.class.js";
+import logger from "../lib/logger.js";
 
 export const sendTokenForEmailVerification = async (req, res) => {
     try {
@@ -20,6 +21,7 @@ export const sendTokenForEmailVerification = async (req, res) => {
 
 export const verifyEmailVerificationToken = async (req, res) => {
     try {
+        console.log(`INFO: Auth Controller - verifyEmailVerificationToken: ${JSON.stringify(req.body)}`)
         const responseObj = { body: req.body };
         const authObject = new AuthClass();
         const result = await authObject.verifyEmailVerificationToken(req.body.email.toLowerCase(), req.body.deviceToken, req.body.verificationCode)
